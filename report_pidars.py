@@ -1,18 +1,10 @@
 from selenium import webdriver
 from webpage_elements import *
 from css_selectors import bcolors
-import json
+from helpers import *
 
-print(f"{bcolors.OKBLUE}Slava {bcolors.ENDC}",
-      f"{bcolors.WARNING}Ukrayini{bcolors.ENDC}")
-with open("./dolboebi.json", "r") as read_file:
-    dolboebi = json.load(read_file)
-
-# set up the web driver
-options = webdriver.ChromeOptions()
-options.add_experimental_option('excludeSwitches', ['enable-logging'])
-options.add_argument("--start-maximized")
-driver = webdriver.Chrome(options=options)
+displayChant()
+dolboebi, driver = init("./dolboebi.json")
 driver.get("https://www.instagram.com")
 
 # accept_cookies & log in
