@@ -9,6 +9,7 @@ with open("./dolboebi.json", "r") as read_file:
 # set up the web driver
 options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
+options.add_argument("--start-maximized")
 driver = webdriver.Chrome(options=options)
 driver.get("https://www.instagram.com")
 
@@ -24,6 +25,6 @@ for index in dolboebi:
     for post in dolboeb["posts"]:
         report_post(driver,post)
         posts_counter+=1
-    print(f"Posts reported in total: {posts_counter}")
+print(f"Posts reported in total: {posts_counter}")
 time.sleep(5)
 driver.quit()
