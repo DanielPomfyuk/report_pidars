@@ -1,8 +1,10 @@
 from selenium import webdriver
 from webpage_elements import *
+from css_selectors import bcolors
 import json
 
-print("Slava Ukrayini")
+print(f"{bcolors.OKBLUE}Slava {bcolors.ENDC}",
+      f"{bcolors.WARNING}Ukrayini{bcolors.ENDC}")
 with open("./dolboebi.json", "r") as read_file:
     dolboebi = json.load(read_file)
 
@@ -21,10 +23,14 @@ log_in(driver)
 posts_counter = 0
 for index in dolboebi:
     dolboeb = dolboebi[index]
-    print(f"Reporting this dolboeb: {dolboeb['username']}")
+    print("Reporting this dolboeb: ",
+          f"{bcolors.OKGREEN}{dolboeb['username']}{bcolors.ENDC}")
     for post in dolboeb["posts"]:
-        report_post(driver,post)
-        posts_counter+=1
-print(f"Posts reported in total: {posts_counter}")
-time.sleep(5)
+        try:
+            report_post(driver, post)
+            posts_counter += 1
+        except:
+            print(f"{bcolors.FAIL}Couldn't report the post. Moving to the next one{bcolors.ENDC}")
+            continue
+print(f"{bcolors.OKGREEN}Posts reported in total: {posts_counter}{bcolors.ENDC}")
 driver.quit()
