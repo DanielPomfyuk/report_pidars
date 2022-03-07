@@ -1,12 +1,9 @@
 import sys
-import toml
-import logging
 from css_selectors import *
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-config = toml.load("./config.toml")
 
 
 def findElementBySelector(driver, css_selector, timeout=10):
@@ -29,20 +26,28 @@ def accept_cookies(driver: webdriver):
         sys.exit()
 
 
-def insert_credantials(driver: webdriver):
-    print("logging in using the credentials from ./config.toml")
+def is_following(driver: webdriver):
+    try:
+        findElementBySelector(driver, AFTER_FOLLOW)
+        return True
+    except:
+        return False
+
+
+def insert_credantials(driver: webdriver, username: str, password: str):
+    print("logging in using the credentials from")
     username_input = findElementBySelector(driver, USERNAME_INPUT)
-    username_input.send_keys(config.get('credentials').get('username'))
+    username_input.send_keys(username)
     password_input = findElementBySelector(driver, PASSWORD_INPUT)
-    password_input.send_keys(config.get('credentials').get('password'))
+    password_input.send_keys(password)
     submit_button = findElementBySelector(
-        driver,SUBMIT_CREDENTIALS_BUTTON)
+        driver, SUBMIT_CREDENTIALS_BUTTON)
     submit_button.click()
 
 
 def wait_for_code(driver: webdriver):
     try:
-        lock = findElementByXPath(driver, LOCK)
+        findElementByXPath(driver, LOCK)
         print(
             "Please enter the code ,sent to your phone number.\nWaiting for 2 minutes")
         dont_save_button = findElementBySelector(
@@ -58,29 +63,80 @@ def notifications_off(driver: webdriver):
     notifications_off_button.click()
 
 
-def log_in(driver: webdriver):
+def log_in(driver: webdriver, username, password):
     try:
-        insert_credantials(driver)
+        insert_credantials(driver, username, password)
         wait_for_code(driver)
         notifications_off(driver)
     except:
-        logging.ERROR("Couldn't Log in. Sutting down the browser")
+        print(f"{bcolors.FAIL}Couldn't Log in. Sutting down the browser{bcolors.ENDC}")
         driver.quit()
         sys.exit()
+
+
+def follow(driver: webdriver, username: str):
+    try:
+        driver.get(f"https://www.instagram.com/{username}")
+        follow_button = findElementByXPath(driver, FOLLOW_BUTTON)
+        follow_button.click()
+        print("Started following this dolboeb: ",
+              f"{bcolors.OKGREEN}{username}{bcolors.ENDC}")
+    except:
+        return
+
+
+def unfollow(driver: webdriver, username: str):
+    try:
+        driver.get(f"https://www.instagram.com/{username}")
+        after_follow = findElementBySelector(driver, AFTER_FOLLOW)
+        after_follow.click()
+        unfollow_button = findElementByXPath(driver, UNFOLLOW_BUTTON)
+        unfollow_button.click()
+        follow_button = findElementByXPath(driver, FOLLOW_BUTTON)
+        print("Successfully unfollowed this dolboeb: ",
+              f"{bcolors.OKGREEN}{username}{bcolors.ENDC}")
+    except:
+        print(f"{bcolors.FAIL}Didn't manage to unfollow {username}{bcolors.ENDC}")
+        return
+
+
+def report_user(driver: webdriver, username: str):
+    try:
+        driver.get(f"https://www.instagram.com/{username}")
+        more_options = findElementBySelector(driver, MORE_OPTIONS_BUTTON_USER)
+        more_options.click()
+        report_button = findElementByXPath(driver, REPORT_BUTTON)
+        report_button.click()
+        report_account_button = findElementByXPath(
+            driver, REPORT_ACCOUNT_BUTTON)
+        report_account_button.click()
+        reason_button = findElementBySelector(driver, REASON_BUTTON)
+        reason_button.click()
+        category_button = findElementByXPath(driver, FALSE_INFORMATION)
+        category_button.click()
+        print(f"{bcolors.OKGREEN}Successfully reported user: {username}{bcolors.ENDC}")
+        return True
+    except:
+        print(
+            f"{bcolors.FAIL}Didn't manage to report the user{bcolors.ENDC}")
+        return False
 
 
 def report_post(driver: webdriver, link):
     try:
         driver.get(link)
+        more_options = findElementBySelector(driver, MORE_OPTIONS_BUTTON_POST)
+        more_options.click()
+        report_button = findElementByXPath(driver, REPORT_BUTTON)
+        report_button.click()
+        false_information = findElementByXPath(driver, FALSE_INFORMATION)
+        false_information.click()
+        politics_reason = findElementByXPath(driver, POLITICS_REASON)
+        politics_reason.click()
+        close_button = findElementBySelector(driver, CLOSE_BUTTON)
+        close_button.click()
+        print("Successfully reported post" f"{bcolors.OKGREEN}{link}{bcolors.ENDC}")
+        return True
     except:
-        return
-    more_options = findElementBySelector(driver, MORE_OPTIONS_BUTTON)
-    more_options.click()
-    report_button = findElementByXPath(driver, REPORT_BUTTON)
-    report_button.click()
-    false_information = findElementByXPath(driver, FALSE_INFORMATION)
-    false_information.click()
-    politics_reason = findElementByXPath(driver, POLITICS_REASON)
-    politics_reason.click()
-    close_button = findElementBySelector(driver, CLOSE_BUTTON)
-    close_button.click()
+        print(f"{bcolors.FAIL}Couldn't report post{link}{bcolors.ENDC}")
+        return False

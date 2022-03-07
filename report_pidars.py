@@ -1,28 +1,50 @@
-from selenium import webdriver
 from webpage_elements import *
 from css_selectors import bcolors
 from helpers import *
+import argparse
+
+parser = argparse.ArgumentParser(description='Report Pidors')
+parser.add_argument(
+    "-u",
+    "--username",
+    type=str,
+    required=True,
+    metavar="USERNAME",
+    help="username or email"
+)
+parser.add_argument(
+    "-p",
+    "--password",
+    type=str,
+    required=True,
+    metavar="PASSWORD",
+    help="Password"
+)
+args = parser.parse_args()
+print (args.username, args.password)
 
 displayChant()
-dolboebi, driver = init("./dolboebi.json")
+dolboebi, driver = init("./dolboebi-test.json")
 driver.get("https://www.instagram.com")
 
 # accept_cookies & log in
 accept_cookies(driver)
-log_in(driver)
+log_in(driver, args.username, args.password)
 
 # report pidars
 posts_counter = 0
+user_counter = 0
 for index in dolboebi:
     dolboeb = dolboebi[index]
-    print("Reporting this dolboeb: ",
-          f"{bcolors.OKGREEN}{dolboeb['username']}{bcolors.ENDC}")
-    for post in dolboeb["posts"]:
-        try:
-            report_post(driver, post)
-            posts_counter += 1
-        except:
-            print(f"{bcolors.FAIL}Couldn't report the post. Moving to the next one{bcolors.ENDC}")
-            continue
+    follow(driver, dolboeb['username'])
+    # for post in dolboeb["posts"]:
+    #         if report_post(driver, post):
+    #             posts_counter += 1
+    if report_user(driver, dolboeb['username']):
+        user_counter += 1
+    unfollow(driver, dolboeb['username'])
+    print("\nGoing to the next dolboeb")
+print("\n",
+      f"\n{bcolors.OKGREEN}Posts reported in total: {user_counter}{bcolors.ENDC}")
 print(f"{bcolors.OKGREEN}Posts reported in total: {posts_counter}{bcolors.ENDC}")
-driver.quit()
+#driver.quit()
