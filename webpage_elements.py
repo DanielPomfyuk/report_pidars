@@ -1,4 +1,5 @@
 import sys
+import time
 from css_selectors import *
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -15,13 +16,12 @@ def findElementByXPath(driver, xpath, timeout=10):
 
 
 def accept_cookies(driver: webdriver):
-    print("accepting cookies. yum yum")
     try:
         cookie_button = findElementBySelector(
             driver, ALLOW_COOKIES_BUTTON)
         cookie_button.click()
     except:
-        print("Could not accept the cookies")
+        print("Couldn't accept the cookies")
         driver.quit()
         sys.exit()
 
@@ -92,7 +92,7 @@ def unfollow(driver: webdriver, username: str):
         after_follow.click()
         unfollow_button = findElementByXPath(driver, UNFOLLOW_BUTTON)
         unfollow_button.click()
-        follow_button = findElementByXPath(driver, FOLLOW_BUTTON)
+        findElementByXPath(driver, FOLLOW_BUTTON)
         print("Successfully unfollowed this dolboeb: ",
               f"{bcolors.OKGREEN}{username}{bcolors.ENDC}")
     except:
@@ -111,10 +111,12 @@ def report_user(driver: webdriver, username: str):
             driver, REPORT_ACCOUNT_BUTTON)
         report_account_button.click()
         reason_button = findElementBySelector(driver, REASON_BUTTON)
+        time.sleep(5)
         reason_button.click()
-        category_button = findElementByXPath(driver, FALSE_INFORMATION)
-        category_button.click()
-        print(f"{bcolors.OKGREEN}Successfully reported user: {username}{bcolors.ENDC}")
+        false_information = findElementByXPath(driver, FALSE_INFORMATION)
+        false_information.click()
+        print(
+            "Successfully reported user:" f"{bcolors.OKGREEN}{username}{bcolors.ENDC}")
         return True
     except:
         print(
@@ -135,7 +137,8 @@ def report_post(driver: webdriver, link):
         politics_reason.click()
         close_button = findElementBySelector(driver, CLOSE_BUTTON)
         close_button.click()
-        print("Successfully reported post" f"{bcolors.OKGREEN}{link}{bcolors.ENDC}")
+        print(
+            "Successfully reported post" f"{bcolors.OKGREEN}{link}{bcolors.ENDC}")
         return True
     except:
         print(f"{bcolors.FAIL}Couldn't report post{link}{bcolors.ENDC}")

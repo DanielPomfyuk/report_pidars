@@ -3,7 +3,7 @@ from css_selectors import bcolors
 from helpers import *
 import argparse
 
-parser = argparse.ArgumentParser(description='Report Pidors')
+parser = argparse.ArgumentParser(description='Report Pidars')
 parser.add_argument(
     "-u",
     "--username",
@@ -21,10 +21,9 @@ parser.add_argument(
     help="Password"
 )
 args = parser.parse_args()
-print (args.username, args.password)
 
 displayChant()
-dolboebi, driver = init("./dolboebi-test.json")
+dolboebi, driver = init("./dolboebi.json")
 driver.get("https://www.instagram.com")
 
 # accept_cookies & log in
@@ -37,14 +36,14 @@ user_counter = 0
 for index in dolboebi:
     dolboeb = dolboebi[index]
     follow(driver, dolboeb['username'])
-    # for post in dolboeb["posts"]:
-    #         if report_post(driver, post):
-    #             posts_counter += 1
+    for post in dolboeb["posts"]:
+        if report_post(driver, post):
+            posts_counter += 1
     if report_user(driver, dolboeb['username']):
         user_counter += 1
     unfollow(driver, dolboeb['username'])
-    print("\nGoing to the next dolboeb")
+    print("Going to the next dolboeb\n")
 print("\n",
       f"\n{bcolors.OKGREEN}Posts reported in total: {user_counter}{bcolors.ENDC}")
 print(f"{bcolors.OKGREEN}Posts reported in total: {posts_counter}{bcolors.ENDC}")
-#driver.quit()
+driver.quit()
