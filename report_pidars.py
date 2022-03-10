@@ -1,5 +1,4 @@
 from webpage_elements import *
-from css_selectors import bcolors
 from helpers import *
 import argparse
 
@@ -24,7 +23,7 @@ args = parser.parse_args()
 
 displayChant()
 dolboebi, driver = init("./dolboebi.json")
-driver.get("https://www.instagram.com")
+driver.get(BASE_PATH)
 
 # accept_cookies & log in
 accept_cookies(driver)
@@ -44,6 +43,6 @@ for index in dolboebi:
     unfollow(driver, dolboeb['username'])
     print("Going to the next dolboeb\n")
 print("\n",
-      f"\n{bcolors.OKGREEN}Posts reported in total: {user_counter}{bcolors.ENDC}")
+      f"\n{bcolors.OKGREEN}Accounts reported in total: {user_counter}{bcolors.ENDC}")
 print(f"{bcolors.OKGREEN}Posts reported in total: {posts_counter}{bcolors.ENDC}")
 driver.quit()

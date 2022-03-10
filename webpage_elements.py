@@ -5,15 +5,37 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from helpers import bcolors
 
 
-def findElementBySelector(driver, css_selector, timeout=10):
-    return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.CSS_SELECTOR, css_selector)))
+def findElementBySelector(driver, css_selector, timeout=10, reloaded=False):
+    try:
+        return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.CSS_SELECTOR, css_selector)))
+    except:
+        if not reloaded:
+            reload(driver)
+            findElementBySelector(driver,css_selector,timeout, True)
+        else:
+            raise
+        
 
 
-def findElementByXPath(driver, xpath, timeout=10):
-    return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
+def findElementByXPath(driver, xpath, timeout=10, reloaded=False):
+    try:
+        return WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.XPATH, xpath)))
+    except:
+        if not reloaded:
+            reload(driver)
+            findElementByXPath(driver,xpath,timeout, True)
+        else:
+            raise
 
+def findElementById(driver, id,timeout=10, reloaded=False):
+        return WebDriverWait(driver, timeout).until(EC.presence_of_all_elements_located((By.ID, id)))
+
+def reload(driver):
+    reload_button = findElementById(driver,RELOAD_BUTTON,5)
+    reload_button.click()
 
 def accept_cookies(driver: webdriver):
     try:
@@ -24,14 +46,6 @@ def accept_cookies(driver: webdriver):
         print("Couldn't accept the cookies")
         driver.quit()
         sys.exit()
-
-
-def is_following(driver: webdriver):
-    try:
-        findElementBySelector(driver, AFTER_FOLLOW)
-        return True
-    except:
-        return False
 
 
 def insert_credantials(driver: webdriver, username: str, password: str):
@@ -76,7 +90,7 @@ def log_in(driver: webdriver, username, password):
 
 def follow(driver: webdriver, username: str):
     try:
-        driver.get(f"https://www.instagram.com/{username}")
+        driver.get(f"{BASE_PATH}{username}")
         follow_button = findElementByXPath(driver, FOLLOW_BUTTON)
         follow_button.click()
         print("Started following this dolboeb: ",
@@ -87,7 +101,7 @@ def follow(driver: webdriver, username: str):
 
 def unfollow(driver: webdriver, username: str):
     try:
-        driver.get(f"https://www.instagram.com/{username}")
+        driver.get(f"{BASE_PATH}{username}")
         after_follow = findElementBySelector(driver, AFTER_FOLLOW)
         after_follow.click()
         unfollow_button = findElementByXPath(driver, UNFOLLOW_BUTTON)
@@ -102,7 +116,7 @@ def unfollow(driver: webdriver, username: str):
 
 def report_user(driver: webdriver, username: str):
     try:
-        driver.get(f"https://www.instagram.com/{username}")
+        driver.get(f"{BASE_PATH}{username}")
         more_options = findElementBySelector(driver, MORE_OPTIONS_BUTTON_USER)
         more_options.click()
         report_button = findElementByXPath(driver, REPORT_BUTTON)
@@ -111,12 +125,12 @@ def report_user(driver: webdriver, username: str):
             driver, REPORT_ACCOUNT_BUTTON)
         report_account_button.click()
         reason_button = findElementBySelector(driver, REASON_BUTTON)
-        time.sleep(5)
+        time.sleep(3)
         reason_button.click()
         false_information = findElementByXPath(driver, FALSE_INFORMATION)
         false_information.click()
         print(
-            "Successfully reported user:" f"{bcolors.OKGREEN}{username}{bcolors.ENDC}")
+            "Successfully reported user: " f"{bcolors.OKGREEN}{username}{bcolors.ENDC}")
         return True
     except:
         print(
@@ -138,8 +152,8 @@ def report_post(driver: webdriver, link):
         close_button = findElementBySelector(driver, CLOSE_BUTTON)
         close_button.click()
         print(
-            "Successfully reported post" f"{bcolors.OKGREEN}{link}{bcolors.ENDC}")
+            "Successfully reported post " f"{bcolors.OKGREEN}{link}{bcolors.ENDC}")
         return True
     except:
-        print(f"{bcolors.FAIL}Couldn't report post{link}{bcolors.ENDC}")
+        print(f"{bcolors.FAIL}Couldn't report post {link}{bcolors.ENDC}")
         return False
